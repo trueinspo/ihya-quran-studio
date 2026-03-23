@@ -1,0 +1,97 @@
+{
+  "nav": {
+    "home": "Home",
+    "courses": "Courses",
+    "about": "About",
+    "contact": "Contact",
+    "login": "Login",
+    "register": "Register",
+    "dashboard": "Dashboard",
+    "logout": "Logout"
+  },
+  "hero": {
+    "label": "Ihya Project",
+    "title": "Revive Your Quran… Word by Word",
+    "subtitle": "Specialized courses in Qira'at, Tajweed, and the etiquettes of Quran bearers",
+    "cta_courses": "Browse Courses",
+    "cta_sheikh": "Meet the Sheikh"
+  },
+  "about": {
+    "title": "Who is the Sheikh?",
+    "name": "Sheikh al-Muqri' Qusai bin Talal bin Abdullah Bawazir",
+    "bio_1": "Professor of Arabic Language and Literature at Bursa Uludağ University, Turkey",
+    "bio_2": "Master's and PhD in the Noble Quran and Qira'at",
+    "bio_3": "Licensed and licensing in the Ten Minor and Major Qira'at from senior scholars of the Islamic world",
+    "bio_4": "Reciter of the Ten Minor and Major Qira'at for over thirteen years",
+    "bio_5": "Served as teacher, supervisor, mentor, and director for numerous Quranic centers and institutes in Yemen and Turkey",
+    "stat_years": "Years Experience",
+    "stat_students": "Students",
+    "stat_courses": "Courses"
+  },
+  "courses_section": {
+    "title": "Available Courses",
+    "details": "Details",
+    "free": "Free",
+    "students": "students",
+    "lessons": "lessons"
+  },
+  "values": {
+    "title": "Why Ihya?",
+    "value_1_title": "Authentic Methodology",
+    "value_1_desc": "Built on the foundations of transmitted Islamic knowledge through verified chains",
+    "value_2_title": "Direct Supervision",
+    "value_2_desc": "Personal follow-up and continuous evaluation of student progress",
+    "value_3_title": "Spiritual Learning Environment",
+    "value_3_desc": "A faith-based atmosphere combining knowledge, practice, and spiritual growth"
+  },
+  "cta": {
+    "ayah": "And recite the Quran with measured recitation",
+    "subtitle": "Join thousands of learners on the journey of reviving the Quran",
+    "button": "Register for Free"
+  },
+  "footer": {
+    "tagline": "Ihya — For Teaching the Noble Quran",
+    "quick_links": "Quick Links",
+    "social": "Connect With Us",
+    "copyright": "© 2026 Ihya Project for Teaching the Noble Quran. All rights reserved"
+  },
+  "courses_page": {
+    "title": "All Courses",
+    "subtitle": "Choose from a variety of specialized courses",
+    "filter_all": "All",
+    "filter_tajweed": "Tajweed",
+    "filter_qiraat": "Qira'at",
+    "filter_adab": "Etiquettes",
+    "no_courses": "No courses available at this time"
+  },
+  "course_detail": {
+    "overview": "Overview",
+    "content": "Content",
+    "enroll": "Enrollment",
+    "enroll_free": "Enroll for Free",
+    "lessons_count": "Lessons",
+    "students_count": "Students",
+    "locked": "Locked content — enroll to access"
+  },
+  "auth": {
+    "login_title": "Sign In",
+    "register_title": "Create Account",
+    "email": "Email",
+    "password": "Password",
+    "confirm_password": "Confirm Password",
+    "full_name": "Full Name",
+    "forgot_password": "Forgot password?",
+    "no_account": "Don't have an account?",
+    "has_account": "Already have an account?",
+    "login_btn": "Sign In",
+    "register_btn": "Register"
+  },
+  "sample_courses": {
+    "course_1_title": "Tuhfat al-Atfal Explained",
+    "course_1_desc": "A comprehensive explanation of the Tuhfat al-Atfal text on fundamental Tajweed rules with practical application",
+    "course_2_title": "Introduction to Qira'at Sciences",
+    "course_2_desc": "An introduction to the science of Quranic readings, its foundations, and its imams with a study of differences between narrations",
+    "course_3_title": "Summarized al-Tibyan on Quran Bearers' Etiquettes",
+    "course_3_desc": "A study of the etiquettes of reciting, memorizing, and teaching the Noble Quran as outlined by Imam al-Nawawi"
+  }
+}
