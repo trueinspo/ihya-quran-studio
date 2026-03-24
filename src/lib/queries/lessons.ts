@@ -1,5 +1,8 @@
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase, Lesson } from '@/lib/supabase'
+
+type LessonInsert = Omit<Lesson, 'id' | 'created_at'>
+type LessonUpdate = Partial<LessonInsert> & { id: string; course_id: string }
 
 const fetchLessons = async (courseId: string) => {
   const { data, error } = await supabase
@@ -17,3 +20,38 @@ export const useLessons = (courseId: string) =>
     queryFn: () => fetchLessons(courseId),
     enabled: !!courseId,
   })
+
+export const useCreateLesson = () => {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (input: LessonInsert) => {
+      const { data, error } = await supabase.from('lessons').insert(input).select().single()
+      if (error) throw error
+      return data as Lesson
+    },
+    onSuccess: (_data, { course_id }) => qc.invalidateQueries({ queryKey: ['lessons', course_id] }),
+  })
+}
+
+export const useUpdateLesson = () => {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async ({ id, course_id, ...input }: LessonUpdate) => {
+      const { data, error } = await supabase.from('lessons').update(input).eq('id', id).select().single()
+      if (error) throw error
+      return data as Lesson
+    },
+    onSuccess: (_data, { course_id }) => qc.invalidateQueries({ queryKey: ['lessons', course_id] }),
+  })
+}
+
+export const useDeleteLesson = () => {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async ({ id }: { id: string; course_id: string }) => {
+      const { error } = await supabase.from('lessons').delete().eq('id', id)
+      if (error) throw error
+    },
+    onSuccess: (_data, { course_id }) => qc.invalidateQueries({ queryKey: ['lessons', course_id] }),
+  })
+}

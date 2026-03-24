@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from '@/hooks/useLanguage';
-import { Menu, X, LogOut, User } from 'lucide-react';
+import { Menu, X, LogOut, LayoutDashboard } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -10,9 +10,17 @@ const Navbar = () => {
   const { t } = useTranslation();
   const { isArabic, toggleLanguage } = useLanguage();
   const location = useLocation();
+  const navigate = useNavigate();
   const { user, profile, signOut } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+
+  const handleSignOut = async () => {
+    await signOut();
+    setUserMenuOpen(false);
+    setMobileOpen(false);
+    navigate('/', { replace: true });
+  };
 
   const links = [
     { to: '/', label: t('nav.home') },
@@ -86,8 +94,18 @@ const Navbar = () => {
                         <span className="text-xs text-primary font-semibold font-arabic">مدير النظام</span>
                       )}
                     </div>
+                    {profile?.role === 'admin' && (
+                      <Link
+                        to="/admin"
+                        onClick={() => setUserMenuOpen(false)}
+                        className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-foreground/70 hover:bg-muted transition-colors"
+                      >
+                        <LayoutDashboard size={14} />
+                        {t('admin.panel')}
+                      </Link>
+                    )}
                     <button
-                      onClick={() => { signOut(); setUserMenuOpen(false); }}
+                      onClick={handleSignOut}
                       className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-foreground/70 hover:bg-muted transition-colors"
                     >
                       <LogOut size={14} />
@@ -158,8 +176,18 @@ const Navbar = () => {
                       <p className="text-xs text-muted-foreground truncate">{user.email}</p>
                     </div>
                   </div>
+                  {profile?.role === 'admin' && (
+                    <Link
+                      to="/admin"
+                      onClick={() => setMobileOpen(false)}
+                      className="flex items-center gap-2 text-sm font-medium py-2 px-3 rounded-lg text-foreground/70 hover:bg-muted transition-colors"
+                    >
+                      <LayoutDashboard size={14} />
+                      {t('admin.panel')}
+                    </Link>
+                  )}
                   <button
-                    onClick={() => { signOut(); setMobileOpen(false); }}
+                    onClick={handleSignOut}
                     className="flex items-center gap-2 text-sm font-medium py-2 px-3 rounded-lg text-foreground/70 hover:bg-muted transition-colors"
                   >
                     <LogOut size={14} />

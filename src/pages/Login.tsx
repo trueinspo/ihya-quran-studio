@@ -21,12 +21,17 @@ const Login = () => {
     e.preventDefault();
     setError('');
     setLoading(true);
-    const { error } = await signIn(email, password);
-    setLoading(false);
-    if (error) {
-      setError(t('auth.login_error'));
-    } else {
-      navigate(from, { replace: true });
+    try {
+      const { error, profile } = await signIn(email, password);
+      if (error) {
+        setError(t('auth.login_error'));
+      } else {
+        navigate(profile?.role === 'admin' ? '/admin' : from, { replace: true });
+      }
+    } catch {
+      setError(t('auth.generic_error'));
+    } finally {
+      setLoading(false);
     }
   };
 
