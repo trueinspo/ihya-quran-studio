@@ -2,14 +2,17 @@ import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from '@/hooks/useLanguage';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, LogOut, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Navbar = () => {
   const { t } = useTranslation();
   const { isArabic, toggleLanguage } = useLanguage();
   const location = useLocation();
+  const { user, profile, signOut } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
 
   const links = [
     { to: '/', label: t('nav.home') },
@@ -17,6 +20,10 @@ const Navbar = () => {
   ];
 
   const isActive = (path: string) => location.pathname === path;
+
+  const initials = profile?.full_name
+    ? profile.full_name.split(' ').map((w) => w[0]).slice(0, 2).join('').toUpperCase()
+    : user?.email?.[0].toUpperCase() ?? '?';
 
   return (
     <nav className="fixed top-0 inset-x-0 z-50 bg-card/80 backdrop-blur-lg border-b border-border/50">
@@ -51,19 +58,62 @@ const Navbar = () => {
             {isArabic ? 'EN' : 'AR'}
           </button>
 
-          <Link
-            to="/login"
-            className="hidden md:inline-flex text-sm font-medium text-foreground/70 hover:text-primary transition-colors"
-          >
-            {t('nav.login')}
-          </Link>
+          {user ? (
+            <div className="relative">
+              <button
+                onClick={() => setUserMenuOpen(!userMenuOpen)}
+                className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-muted transition-colors"
+              >
+                <span className="w-7 h-7 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center">
+                  {initials}
+                </span>
+                <span className="text-sm font-medium text-foreground/80 max-w-[100px] truncate">
+                  {profile?.full_name ?? user.email}
+                </span>
+              </button>
+              <AnimatePresence>
+                {userMenuOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute end-0 mt-2 w-48 bg-card border border-border/50 rounded-xl shadow-lg overflow-hidden"
+                  >
+                    <div className="px-4 py-3 border-b border-border/50">
+                      <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                      {profile?.role === 'admin' && (
+                        <span className="text-xs text-primary font-semibold font-arabic">مدير النظام</span>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => { signOut(); setUserMenuOpen(false); }}
+                      className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-foreground/70 hover:bg-muted transition-colors"
+                    >
+                      <LogOut size={14} />
+                      {t('nav.logout')}
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          ) : (
+            <>
+              <Link
+                to="/login"
+                className="hidden md:inline-flex text-sm font-medium text-foreground/70 hover:text-primary transition-colors"
+              >
+                {t('nav.login')}
+              </Link>
 
-          <Link
-            to="/register"
-            className="hidden md:inline-flex text-sm font-medium bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors active:scale-[0.97]"
-          >
-            {t('nav.register')}
-          </Link>
+              <Link
+                to="/register"
+                className="hidden md:inline-flex text-sm font-medium bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors active:scale-[0.97]"
+              >
+                {t('nav.register')}
+              </Link>
+            </>
+          )}
 
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
@@ -97,20 +147,43 @@ const Navbar = () => {
                 </Link>
               ))}
               <hr className="border-border" />
-              <Link
-                to="/login"
-                onClick={() => setMobileOpen(false)}
-                className="text-sm font-medium py-2 px-3 rounded-lg text-foreground/70 hover:bg-muted transition-colors"
-              >
-                {t('nav.login')}
-              </Link>
-              <Link
-                to="/register"
-                onClick={() => setMobileOpen(false)}
-                className="text-sm font-medium bg-primary text-primary-foreground py-2 px-3 rounded-lg text-center hover:bg-primary/90 transition-colors"
-              >
-                {t('nav.register')}
-              </Link>
+              {user ? (
+                <>
+                  <div className="flex items-center gap-2 px-3 py-2">
+                    <span className="w-8 h-8 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center">
+                      {initials}
+                    </span>
+                    <div>
+                      <p className="text-sm font-medium text-foreground">{profile?.full_name ?? user.email}</p>
+                      <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => { signOut(); setMobileOpen(false); }}
+                    className="flex items-center gap-2 text-sm font-medium py-2 px-3 rounded-lg text-foreground/70 hover:bg-muted transition-colors"
+                  >
+                    <LogOut size={14} />
+                    {t('nav.logout')}
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link
+                    to="/login"
+                    onClick={() => setMobileOpen(false)}
+                    className="text-sm font-medium py-2 px-3 rounded-lg text-foreground/70 hover:bg-muted transition-colors"
+                  >
+                    {t('nav.login')}
+                  </Link>
+                  <Link
+                    to="/register"
+                    onClick={() => setMobileOpen(false)}
+                    className="text-sm font-medium bg-primary text-primary-foreground py-2 px-3 rounded-lg text-center hover:bg-primary/90 transition-colors"
+                  >
+                    {t('nav.register')}
+                  </Link>
+                </>
+              )}
             </div>
           </motion.div>
         )}

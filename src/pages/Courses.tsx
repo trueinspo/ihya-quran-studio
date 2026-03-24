@@ -4,20 +4,19 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
-
-const sampleCourses = [
-  { id: '1', key: 'course_1', category: 'tajweed', lessons: 12, students: 147 },
-  { id: '2', key: 'course_2', category: 'qiraat', lessons: 8, students: 89 },
-  { id: '3', key: 'course_3', category: 'adab', lessons: 6, students: 203 },
-];
+import { useCourses } from '@/lib/queries/courses';
+import { useLanguage } from '@/hooks/useLanguage';
+import { CourseCategory } from '@/lib/supabase';
 
 const categories = ['all', 'tajweed', 'qiraat', 'adab'] as const;
 
 const Courses = () => {
   const { t } = useTranslation();
+  const { isArabic } = useLanguage();
   const [filter, setFilter] = useState<string>('all');
 
-  const filtered = filter === 'all' ? sampleCourses : sampleCourses.filter(c => c.category === filter);
+  const category = filter === 'all' ? undefined : (filter as CourseCategory);
+  const { data: courses = [], isLoading } = useCourses(category);
 
   const filterLabels: Record<string, string> = {
     all: t('courses_page.filter_all'),
@@ -61,46 +60,65 @@ const Courses = () => {
           </div>
 
           {/* Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filtered.map((course, i) => (
-              <motion.div
-                key={course.id}
-                initial={{ opacity: 0, y: 20, filter: 'blur(4px)' }}
-                animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-                transition={{ duration: 0.5, delay: i * 0.08, ease: [0.16, 1, 0.3, 1] }}
-              >
-                <div className="bg-card rounded-2xl overflow-hidden shadow-sm border border-border/50 card-hover">
-                  <div className="h-44 bg-hero-gradient relative">
-                    <div className="absolute top-3 start-3">
-                      <span className="bg-brand-gold text-secondary text-xs font-semibold px-3 py-1 rounded-full">
-                        {t('courses_section.free')}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="p-5">
-                    <h3 className="text-lg font-bold text-foreground mb-2 font-arabic leading-relaxed">
-                      {t(`sample_courses.${course.key}_title`)}
-                    </h3>
-                    <p className="text-sm text-muted-foreground mb-4 font-arabic" style={{ lineHeight: 1.9 }}>
-                      {t(`sample_courses.${course.key}_desc`)}
-                    </p>
-                    <div className="flex items-center justify-between">
-                      <div className="flex gap-4 text-xs text-muted-foreground">
-                        <span>{course.lessons} {t('courses_section.lessons')}</span>
-                        <span>{course.students} {t('courses_section.students')}</span>
-                      </div>
-                      <Link
-                        to={`/courses/${course.id}`}
-                        className="text-sm font-semibold text-primary hover:text-primary/80 transition-colors"
-                      >
-                        {t('courses_section.details')} ←
-                      </Link>
-                    </div>
+          {isLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="bg-card rounded-2xl overflow-hidden border border-border/50 animate-pulse">
+                  <div className="h-44 bg-muted" />
+                  <div className="p-5 space-y-3">
+                    <div className="h-5 bg-muted rounded w-3/4" />
+                    <div className="h-4 bg-muted rounded w-full" />
+                    <div className="h-4 bg-muted rounded w-2/3" />
                   </div>
                 </div>
-              </motion.div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : courses.length === 0 ? (
+            <p className="text-center text-muted-foreground font-arabic py-20">{t('courses_page.no_courses')}</p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {courses.map((course, i) => (
+                <motion.div
+                  key={course.id}
+                  initial={{ opacity: 0, y: 20, filter: 'blur(4px)' }}
+                  animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                  transition={{ duration: 0.5, delay: i * 0.08, ease: [0.16, 1, 0.3, 1] }}
+                >
+                  <div className="bg-card rounded-2xl overflow-hidden shadow-sm border border-border/50 card-hover">
+                    <div className="h-44 bg-hero-gradient relative">
+                      {course.is_free && (
+                        <div className="absolute top-3 start-3">
+                          <span className="bg-brand-gold text-secondary text-xs font-semibold px-3 py-1 rounded-full">
+                            {t('courses_section.free')}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-5">
+                      <h3 className="text-lg font-bold text-foreground mb-2 font-arabic leading-relaxed">
+                        {isArabic ? course.title_ar : course.title_en}
+                      </h3>
+                      <p className="text-sm text-muted-foreground mb-4 font-arabic" style={{ lineHeight: 1.9 }}>
+                        {isArabic ? course.description_ar : course.description_en}
+                      </p>
+                      <div className="flex items-center justify-between">
+                        <div className="flex gap-4 text-xs text-muted-foreground">
+                          <span>{course.lesson_count} {t('courses_section.lessons')}</span>
+                          <span>{course.student_count} {t('courses_section.students')}</span>
+                        </div>
+                        <Link
+                          to={`/courses/${course.id}`}
+                          className="text-sm font-semibold text-primary hover:text-primary/80 transition-colors"
+                        >
+                          {t('courses_section.details')} ←
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
       <Footer />

@@ -84,7 +84,11 @@
     "no_account": "Don't have an account?",
     "has_account": "Already have an account?",
     "login_btn": "Sign In",
-    "register_btn": "Register"
+    "register_btn": "Register",
+    "password_mismatch": "Passwords do not match",
+    "register_success": "Account created! Check your email to confirm your registration.",
+    "login_error": "Invalid email or password. Please try again.",
+    "generic_error": "Something went wrong. Please try again."
   },
   "sample_courses": {
     "course_1_title": "Tuhfat al-Atfal Explained",
