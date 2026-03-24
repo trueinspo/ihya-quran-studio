@@ -104,6 +104,7 @@
     "dashboard_subtitle": "إدارة دورات منصة إحياء وطلابها",
     "courses": "الدورات",
     "students": "الطلاب",
+    "profile": "الملف الشخصي",
     "admin_role": "مدير النظام",
     "back_to_site": "العودة للموقع",
     "total_courses": "إجمالي الدورات",
@@ -140,6 +141,17 @@
     "lesson_title_en": "عنوان الدرس (إنجليزي)",
     "student_name": "اسم الطالب",
     "enrolled_count": "الدورات المسجّلة",
-    "joined_date": "تاريخ الانضمام"
+    "joined_date": "تاريخ الانضمام",
+    "profile_subtitle": "راجع بيانات الحساب وقم بتحديث كلمة مرور المدير.",
+    "account_info": "معلومات الحساب",
+    "change_password": "تغيير كلمة المرور",
+    "email_address": "البريد الإلكتروني",
+    "full_name": "الاسم الكامل",
+    "new_password": "كلمة المرور الجديدة",
+    "confirm_new_password": "تأكيد كلمة المرور الجديدة",
+    "update_password": "تحديث كلمة المرور",
+    "password_updated": "تم تحديث كلمة المرور بنجاح.",
+    "password_min": "يجب أن تكون كلمة المرور 8 أحرف على الأقل.",
+    "password_mismatch": "كلمتا المرور غير متطابقتين."
   }
 }

@@ -1,7 +1,8 @@
-import { Navigate, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { Link, Navigate, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { LayoutDashboard, BookOpen, Users, LogOut, ExternalLink } from 'lucide-react'
+import { LayoutDashboard, BookOpen, Users, LogOut, ExternalLink, User } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
+import Navbar from '@/components/layout/Navbar'
 
 const AdminLayout = () => {
   const { t } = useTranslation()
@@ -22,23 +23,34 @@ const AdminLayout = () => {
 
   const handleSignOut = async () => {
     await signOut()
-    navigate('/login')
+    navigate('/')
   }
 
   const navItems = [
     { to: '/admin', label: t('admin.dashboard'), icon: LayoutDashboard, end: true },
     { to: '/admin/courses', label: t('admin.courses'), icon: BookOpen, end: false },
     { to: '/admin/students', label: t('admin.students'), icon: Users, end: false },
+    { to: '/admin/profile', label: t('admin.profile'), icon: User, end: false },
   ]
 
   return (
-    <div className="min-h-screen flex bg-background" dir="rtl">
+    <div className="min-h-screen bg-background">
+      <Navbar />
+
+      <div className="min-h-screen pt-16 flex bg-background" dir="rtl">
       {/* Sidebar */}
-      <aside className="w-60 flex-shrink-0 border-l border-border bg-card flex flex-col h-screen sticky top-0">
+      <aside className="w-60 flex-shrink-0 border-l border-border bg-card flex flex-col h-[calc(100vh-4rem)] sticky top-16">
         {/* Logo */}
-        <div className="h-16 flex items-center px-5 border-b border-border gap-2">
-          <span className="text-xl font-bold text-primary font-arabic">إحياء</span>
-          <span className="text-xs text-muted-foreground font-arabic bg-muted px-2 py-0.5 rounded-full">إدارة</span>
+        <div className="h-16 flex items-center px-5 border-b border-border gap-3">
+          <img
+            src="/Ihya-logo-transparent.png"
+            alt="Ihya Quran Studio"
+            className="h-10 w-10 object-contain"
+          />
+          <div>
+            <p className="text-base font-bold text-primary font-arabic leading-none">إحياء</p>
+            <span className="text-xs text-muted-foreground font-arabic bg-muted px-2 py-0.5 rounded-full inline-flex mt-1">إدارة</span>
+          </div>
         </div>
 
         {/* Nav links */}
@@ -74,13 +86,13 @@ const AdminLayout = () => {
             </div>
           </div>
           <div className="flex gap-1">
-            <a
-              href="/"
+            <Link
+              to="/"
               className="flex-1 flex items-center justify-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors px-2 py-1.5 rounded-lg hover:bg-muted"
             >
               <ExternalLink size={11} />
               <span className="font-arabic">{t('admin.back_to_site')}</span>
-            </a>
+            </Link>
             <button
               onClick={handleSignOut}
               className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-destructive transition-colors px-2 py-1.5 rounded-lg hover:bg-muted"
@@ -98,6 +110,7 @@ const AdminLayout = () => {
           <Outlet />
         </div>
       </main>
+      </div>
     </div>
   )
 }

@@ -1,3 +1,3 @@
-# Welcome to your Lovable project
+# Ihya Quran Studio
 
-TODO: Document your project here
+React + TypeScript frontend for Ihya's Quran education platform, including Supabase authentication, dynamic course management, and an admin dashboard.

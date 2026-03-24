@@ -37,9 +37,16 @@ const Navbar = () => {
     <nav className="fixed top-0 inset-x-0 z-50 bg-card/80 backdrop-blur-lg border-b border-border/50">
       <div className="container mx-auto flex items-center justify-between h-16 px-4">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2">
-          <span className="text-2xl font-bold text-primary font-arabic">إحياء</span>
-          <span className="hidden sm:block text-xs text-secondary font-arabic">لتعليم القرآن الكريم</span>
+        <Link to="/" className="flex items-center gap-3">
+          <img
+            src="/Ihya-logo-transparent.png"
+            alt="Ihya Quran Studio"
+            className="h-10 w-10 object-contain"
+          />
+          <div className="hidden sm:block">
+            <p className="text-lg font-bold text-primary font-arabic leading-none">إحياء</p>
+            <p className="text-[11px] text-secondary font-arabic mt-1 leading-none">لتعليم القرآن الكريم</p>
+          </div>
         </Link>
 
         {/* Desktop nav */}

@@ -104,6 +104,7 @@
     "dashboard_subtitle": "Manage Ihya platform courses and students",
     "courses": "Courses",
     "students": "Students",
+    "profile": "Profile",
     "admin_role": "System Admin",
     "back_to_site": "Back to Site",
     "total_courses": "Total Courses",
@@ -140,6 +141,17 @@
     "lesson_title_en": "Lesson Title (English)",
     "student_name": "Student Name",
     "enrolled_count": "Enrolled Courses",
-    "joined_date": "Joined Date"
+    "joined_date": "Joined Date",
+    "profile_subtitle": "Review account details and update the admin password.",
+    "account_info": "Account Info",
+    "change_password": "Change Password",
+    "email_address": "Email Address",
+    "full_name": "Full Name",
+    "new_password": "New Password",
+    "confirm_new_password": "Confirm New Password",
+    "update_password": "Update Password",
+    "password_updated": "Password updated successfully.",
+    "password_min": "Password must be at least 8 characters.",
+    "password_mismatch": "Passwords do not match."
   }
 }

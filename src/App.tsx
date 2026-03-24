@@ -15,6 +15,7 @@ import AdminLayout from "./pages/admin/AdminLayout";
 import Dashboard from "./pages/admin/Dashboard";
 import AdminCourses from "./pages/admin/AdminCourses";
 import AdminStudents from "./pages/admin/AdminStudents";
+import AdminProfile from "./pages/admin/AdminProfile";
 
 const queryClient = new QueryClient();
 
@@ -35,6 +36,7 @@ const App = () => (
               <Route index element={<Dashboard />} />
               <Route path="courses" element={<AdminCourses />} />
               <Route path="students" element={<AdminStudents />} />
+              <Route path="profile" element={<AdminProfile />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
