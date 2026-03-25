@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import ImageUploadField from '@/components/ImageUploadField'
 
 const AdminProfile = () => {
   const { t } = useTranslation()
@@ -109,19 +110,13 @@ const AdminProfile = () => {
               </div>
             </div>
 
-            <div>
-              <Label htmlFor="admin-avatarUrl" className="font-arabic mb-2 inline-block">{t('student_profile.avatar_url')}</Label>
-              <Input
-                id="admin-avatarUrl"
-                value={avatarUrl}
-                onChange={(e) => setAvatarUrl(e.target.value)}
-                dir="ltr"
-              />
-            </div>
-
-            {avatarUrl && (
-              <img src={avatarUrl} alt={profile?.full_name ?? 'Admin avatar'} className="h-20 w-20 rounded-2xl object-cover border border-border" />
-            )}
+            <ImageUploadField
+              label={t('student_profile.avatar_upload')}
+              folder={`avatars/${user?.id ?? 'admin'}`}
+              value={avatarUrl}
+              onChange={setAvatarUrl}
+              disabled={saving}
+            />
 
             <Button type="submit" disabled={saving} className="font-arabic">
               {saving ? '...' : t('student_profile.save_profile')}

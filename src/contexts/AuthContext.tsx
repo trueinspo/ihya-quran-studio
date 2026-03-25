@@ -8,22 +8,22 @@ interface AuthContextValue {
   profile: Profile | null
   loading: boolean
   signIn: (email: string, password: string) => Promise<{ error: AuthError | null; profile: Profile | null }>
-  signUp: (email: string, password: string, fullName: string) => Promise<{ error: AuthError | null; profile: Profile | null }>
+  signUp: (email: string, password: string, fullName: string) => Promise<{ error: AuthError | null; profile: Profile | null; duplicateEmail: boolean }>
   signOut: () => Promise<void>
   refreshProfile: () => Promise<Profile | null>
+  requestPasswordReset: (email: string) => Promise<{ error: AuthError | null }>
+  emailAccountExists: (email: string) => Promise<boolean>
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined)
 
-const getAuthRedirectUrl = () => {
+const getAuthRedirectUrl = (path = '') => {
   const configuredSiteUrl = import.meta.env.VITE_SITE_URL as string | undefined
-  if (configuredSiteUrl) return configuredSiteUrl
+  const baseUrl = configuredSiteUrl ?? (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:5173')
 
-  if (typeof window !== 'undefined') {
-    return window.location.origin
-  }
+  if (!path) return baseUrl
 
-  return 'http://localhost:5173'
+  return new URL(path, `${baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`}`).toString()
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -119,8 +119,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         emailRedirectTo: getAuthRedirectUrl(),
       },
     })
+
+    const identities = (data.user as (User & { identities?: Array<{ id: string }> | null }) | null)?.identities
+    const duplicateEmail = Array.isArray(identities) && identities.length === 0
+
+    if (duplicateEmail) {
+      return { error: null, profile: null, duplicateEmail: true }
+    }
+
     const nextProfile = data.user ? await loadProfile(data.user.id) : null
-    return { error, profile: nextProfile }
+    return { error, profile: nextProfile, duplicateEmail: false }
   }
 
   const signOut = async () => {
@@ -141,8 +149,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return loadProfile(user.id)
   }
 
+  const requestPasswordReset = async (email: string) => {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: getAuthRedirectUrl('/reset-password'),
+    })
+
+    return { error }
+  }
+
+  const emailAccountExists = async (email: string) => {
+    const { data, error } = await supabase.rpc('email_account_exists', { email_address: email })
+    if (error) return false
+    return !!data
+  }
+
   return (
-    <AuthContext.Provider value={{ user, session, profile, loading, signIn, signUp, signOut, refreshProfile }}>
+    <AuthContext.Provider value={{ user, session, profile, loading, signIn, signUp, signOut, refreshProfile, requestPasswordReset, emailAccountExists }}>
       {children}
     </AuthContext.Provider>
   )

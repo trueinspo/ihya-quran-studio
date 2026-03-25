@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import IslamicPattern from '@/components/IslamicPattern';
 import { useAuth } from '@/contexts/AuthContext';
@@ -8,25 +8,31 @@ import { useAuth } from '@/contexts/AuthContext';
 const Register = () => {
   const { t } = useTranslation();
   const { signUp } = useAuth();
+  const [searchParams] = useSearchParams();
   const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(searchParams.get('email') ?? '');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [duplicateEmail, setDuplicateEmail] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setDuplicateEmail(false);
     if (password !== confirmPassword) {
       setError(t('auth.password_mismatch'));
       return;
     }
     setLoading(true);
-    const { error } = await signUp(email, password, name);
+    const { error, duplicateEmail } = await signUp(email, password, name);
     setLoading(false);
-    if (error) {
+    if (duplicateEmail) {
+      setError(t('auth.email_exists'));
+      setDuplicateEmail(true);
+    } else if (error) {
       setError(t('auth.generic_error'));
     } else {
       setSuccess(true);
@@ -61,7 +67,17 @@ const Register = () => {
             <>
               {error && (
                 <div className="mb-4 p-3 rounded-xl bg-destructive/10 text-destructive text-sm font-arabic">
-                  {error}
+                  <p>{error}</p>
+                  {duplicateEmail && (
+                    <div className="mt-2 flex flex-wrap gap-3 text-sm">
+                      <Link to="/login" className="font-semibold text-primary hover:underline">
+                        {t('auth.go_to_sign_in')}
+                      </Link>
+                      <Link to={`/forgot-password?email=${encodeURIComponent(email)}`} className="font-semibold text-primary hover:underline">
+                        {t('auth.forgot_password_cta')}
+                      </Link>
+                    </div>
+                  )}
                 </div>
               )}
 

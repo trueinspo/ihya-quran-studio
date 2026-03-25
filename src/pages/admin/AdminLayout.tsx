@@ -77,9 +77,13 @@ const AdminLayout = () => {
         {/* User info */}
         <div className="p-4 border-t border-border">
           <div className="flex items-center gap-2.5 mb-3">
-            <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center flex-shrink-0">
-              {profile?.full_name?.[0] ?? 'A'}
-            </div>
+            {profile?.avatar_url ? (
+              <img src={profile.avatar_url} alt={profile?.full_name ?? 'Admin avatar'} className="w-8 h-8 rounded-full object-cover border border-border flex-shrink-0" />
+            ) : (
+              <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center flex-shrink-0">
+                {profile?.full_name?.[0] ?? 'A'}
+              </div>
+            )}
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-foreground truncate font-arabic">{profile?.full_name}</p>
               <p className="text-xs text-primary font-arabic">{t('admin.admin_role')}</p>

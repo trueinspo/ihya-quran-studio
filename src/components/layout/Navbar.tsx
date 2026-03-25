@@ -84,9 +84,13 @@ const Navbar = () => {
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
                 className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-muted transition-colors"
               >
-                <span className="w-7 h-7 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center">
-                  {initials}
-                </span>
+                {profile?.avatar_url ? (
+                  <img src={profile.avatar_url} alt={profile?.full_name ?? user.email ?? 'User avatar'} className="w-7 h-7 rounded-full object-cover border border-border" />
+                ) : (
+                  <span className="w-7 h-7 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center">
+                    {initials}
+                  </span>
+                )}
                 <span className="text-sm font-medium text-foreground/80 max-w-[100px] truncate">
                   {profile?.full_name ?? user.email}
                 </span>
@@ -186,9 +190,13 @@ const Navbar = () => {
               {user ? (
                 <>
                   <div className="flex items-center gap-2 px-3 py-2">
-                    <span className="w-8 h-8 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center">
-                      {initials}
-                    </span>
+                    {profile?.avatar_url ? (
+                      <img src={profile.avatar_url} alt={profile?.full_name ?? user.email ?? 'User avatar'} className="w-8 h-8 rounded-full object-cover border border-border" />
+                    ) : (
+                      <span className="w-8 h-8 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center">
+                        {initials}
+                      </span>
+                    )}
                     <div>
                       <p className="text-sm font-medium text-foreground">{profile?.full_name ?? user.email}</p>
                       <p className="text-xs text-muted-foreground truncate">{user.email}</p>

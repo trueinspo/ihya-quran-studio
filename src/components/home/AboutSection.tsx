@@ -62,12 +62,14 @@ const AboutSection = () => {
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
           className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center"
         >
-          {/* Photo placeholder */}
+          {/* Sheikh photo */}
           <div className="flex justify-center order-2 md:order-1">
             <div className="relative">
-              <div className="w-64 h-64 md:w-80 md:h-80 rounded-2xl bg-gradient-to-br from-primary/20 to-primary-light/20 flex items-center justify-center ring-4 ring-primary/20 ring-offset-4 ring-offset-card shadow-2xl shadow-primary/10">
-                <span className="text-5xl md:text-6xl font-bold text-primary font-arabic">ق.ب</span>
-              </div>
+              <img
+                src="/Qusai-image.jpg"
+                alt={t('about.name')}
+                className="w-64 h-64 md:w-80 md:h-80 rounded-2xl object-cover ring-4 ring-primary/20 ring-offset-4 ring-offset-card shadow-2xl shadow-primary/10"
+              />
               {/* Gold glow */}
               <div className="absolute -inset-4 rounded-3xl bg-brand-gold/5 -z-10 blur-xl" />
             </div>

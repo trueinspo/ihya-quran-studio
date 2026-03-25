@@ -5,31 +5,49 @@ import { motion } from 'framer-motion';
 import IslamicPattern from '@/components/IslamicPattern';
 import { useAuth } from '@/contexts/AuthContext';
 
+type LoginErrorState =
+  | { kind: 'invalid-credentials'; message: string }
+  | { kind: 'user-not-found'; message: string }
+  | null;
+
 const Login = () => {
   const { t } = useTranslation();
-  const { signIn } = useAuth();
+  const { signIn, emailAccountExists } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [error, setError] = useState<LoginErrorState>(null);
   const [loading, setLoading] = useState(false);
 
   const from = (location.state as { from?: Location })?.from?.pathname || '/';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError(null);
     setLoading(true);
     try {
       const { error, profile } = await signIn(email, password);
       if (error) {
-        setError(t('auth.login_error'));
+        const invalidCredentialsError = /invalid login credentials/i.test(error.message);
+        const emailConfirmedError = /email not confirmed/i.test(error.message);
+
+        if (invalidCredentialsError || emailConfirmedError) {
+          const accountExists = await emailAccountExists(email);
+
+          if (accountExists) {
+            setError({ kind: 'invalid-credentials', message: t('auth.login_incorrect_password') });
+          } else {
+            setError({ kind: 'user-not-found', message: t('auth.user_not_found') });
+          }
+        } else {
+          setError({ kind: 'invalid-credentials', message: t('auth.login_error') });
+        }
       } else {
         navigate(profile?.role === 'admin' ? '/admin' : from, { replace: true });
       }
     } catch {
-      setError(t('auth.generic_error'));
+      setError({ kind: 'invalid-credentials', message: t('auth.generic_error') });
     } finally {
       setLoading(false);
     }
@@ -59,7 +77,17 @@ const Login = () => {
 
           {error && (
             <div className="mb-4 p-3 rounded-xl bg-destructive/10 text-destructive text-sm font-arabic">
-              {error}
+              <p>{error.message}</p>
+              {error.kind === 'invalid-credentials' && (
+                <Link to={`/forgot-password?email=${encodeURIComponent(email)}`} className="mt-2 inline-flex text-primary font-semibold hover:underline">
+                  {t('auth.forgot_password_cta')}
+                </Link>
+              )}
+              {error.kind === 'user-not-found' && (
+                <Link to={`/register?email=${encodeURIComponent(email)}`} className="mt-2 inline-flex text-primary font-semibold hover:underline">
+                  {t('auth.create_account_cta')}
+                </Link>
+              )}
             </div>
           )}
 
@@ -79,9 +107,14 @@ const Login = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-foreground mb-1.5 font-arabic">
-                {t('auth.password')}
-              </label>
+              <div className="mb-1.5 flex items-center justify-between gap-3">
+                <label className="block text-sm font-medium text-foreground font-arabic">
+                  {t('auth.password')}
+                </label>
+                <Link to={`/forgot-password?email=${encodeURIComponent(email)}`} className="text-xs font-semibold text-primary hover:underline font-arabic">
+                  {t('auth.forgot_password')}
+                </Link>
+              </div>
               <input
                 type="password"
                 value={password}

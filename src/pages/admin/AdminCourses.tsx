@@ -19,6 +19,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { Switch } from '@/components/ui/switch'
+import ImageUploadField from '@/components/ImageUploadField'
 import { Course, CourseAccessType, CourseCategory, Lesson } from '@/lib/supabase'
 import { useCourses, useCreateCourse, useDeleteCourse, useUpdateCourse } from '@/lib/queries/courses'
 import { useCreateLesson, useDeleteLesson, useLessons, useUpdateLesson } from '@/lib/queries/lessons'
@@ -426,11 +427,13 @@ const AdminCourses = () => {
             <Field label={t('admin.title_en')} value={form.title_en} onChange={(value) => setForm((current) => ({ ...current, title_en: value }))} />
             <Field label={t('admin.desc_ar')} value={form.description_ar} onChange={(value) => setForm((current) => ({ ...current, description_ar: value }))} textarea />
             <Field label={t('admin.desc_en')} value={form.description_en} onChange={(value) => setForm((current) => ({ ...current, description_en: value }))} textarea />
-            <Field label={t('admin.course_image_url')} value={form.image_url} onChange={(value) => setForm((current) => ({ ...current, image_url: value }))} />
-
-            {form.image_url && (
-              <img src={form.image_url} alt={form.title_en || form.title_ar || 'Course cover'} className="h-40 w-full rounded-2xl object-cover border border-border" />
-            )}
+            <ImageUploadField
+              label={t('admin.course_cover_upload')}
+              folder="course-covers"
+              value={form.image_url}
+              onChange={(value) => setForm((current) => ({ ...current, image_url: value }))}
+              disabled={createCourse.isPending || updateCourse.isPending}
+            />
 
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-1.5">

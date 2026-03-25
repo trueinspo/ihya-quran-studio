@@ -9,6 +9,7 @@ import { useMyCourses } from '@/lib/queries/student'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import ImageUploadField from '@/components/ImageUploadField'
 
 const StudentProfile = () => {
   const { t } = useTranslation()
@@ -132,15 +133,13 @@ const StudentProfile = () => {
                 </div>
               </div>
 
-              <div>
-                <Label htmlFor="student-avatarUrl" className="mb-2 inline-block font-arabic">{t('student_profile.avatar_url')}</Label>
-                <Input
-                  id="student-avatarUrl"
-                  value={avatarUrl}
-                  onChange={(e) => setAvatarUrl(e.target.value)}
-                  dir="ltr"
-                />
-              </div>
+              <ImageUploadField
+                label={t('student_profile.avatar_upload')}
+                folder={`avatars/${user.id}`}
+                value={avatarUrl}
+                onChange={setAvatarUrl}
+                disabled={savingProfile}
+              />
 
               <div className="flex items-center gap-4 rounded-2xl border border-border bg-muted/30 p-4">
                 <img
