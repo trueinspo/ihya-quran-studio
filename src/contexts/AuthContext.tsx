@@ -15,6 +15,17 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined)
 
+const getAuthRedirectUrl = () => {
+  const configuredSiteUrl = import.meta.env.VITE_SITE_URL as string | undefined
+  if (configuredSiteUrl) return configuredSiteUrl
+
+  if (typeof window !== 'undefined') {
+    return window.location.origin
+  }
+
+  return 'http://localhost:5173'
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [session, setSession] = useState<Session | null>(null)
@@ -103,7 +114,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { full_name: fullName } },
+      options: {
+        data: { full_name: fullName },
+        emailRedirectTo: getAuthRedirectUrl(),
+      },
     })
     const nextProfile = data.user ? await loadProfile(data.user.id) : null
     return { error, profile: nextProfile }
