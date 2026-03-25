@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from '@/hooks/useLanguage';
-import { Menu, X, LogOut, LayoutDashboard } from 'lucide-react';
+import { Menu, X, LogOut, LayoutDashboard, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -24,6 +24,8 @@ const Navbar = () => {
 
   const dashboardPath = profile?.role === 'admin' ? '/admin' : '/dashboard';
   const dashboardLabel = profile?.role === 'admin' ? t('admin.panel') : t('nav.dashboard');
+  const profilePath = profile?.role === 'admin' ? '/admin/profile' : '/profile';
+  const profileLabel = profile?.role === 'admin' ? t('admin.profile') : t('student_profile.settings');
 
   const links = [
     { to: '/', label: t('nav.home') },
@@ -112,6 +114,14 @@ const Navbar = () => {
                       <LayoutDashboard size={14} />
                       {dashboardLabel}
                     </Link>
+                    <Link
+                      to={profilePath}
+                      onClick={() => setUserMenuOpen(false)}
+                      className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-foreground/70 hover:bg-muted transition-colors"
+                    >
+                      <User size={14} />
+                      {profileLabel}
+                    </Link>
                     <button
                       onClick={handleSignOut}
                       className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-foreground/70 hover:bg-muted transition-colors"
@@ -191,6 +201,14 @@ const Navbar = () => {
                   >
                     <LayoutDashboard size={14} />
                     {dashboardLabel}
+                  </Link>
+                  <Link
+                    to={profilePath}
+                    onClick={() => setMobileOpen(false)}
+                    className="flex items-center gap-2 text-sm font-medium py-2 px-3 rounded-lg text-foreground/70 hover:bg-muted transition-colors"
+                  >
+                    <User size={14} />
+                    {profileLabel}
                   </Link>
                   <button
                     onClick={handleSignOut}

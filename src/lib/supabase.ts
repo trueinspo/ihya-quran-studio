@@ -49,6 +49,9 @@ export interface Lesson {
   content_ar: string
   content_en: string
   video_url: string | null
+  resource_url: string | null
+  resource_label_ar: string
+  resource_label_en: string
   is_preview: boolean
   order: number
   duration: string | null

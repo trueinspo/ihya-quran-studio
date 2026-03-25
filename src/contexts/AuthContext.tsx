@@ -10,6 +10,7 @@ interface AuthContextValue {
   signIn: (email: string, password: string) => Promise<{ error: AuthError | null; profile: Profile | null }>
   signUp: (email: string, password: string, fullName: string) => Promise<{ error: AuthError | null; profile: Profile | null }>
   signOut: () => Promise<void>
+  refreshProfile: () => Promise<Profile | null>
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined)
@@ -117,8 +118,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await supabase.auth.signOut()
   }
 
+  const refreshProfile = async () => {
+    if (!user?.id) {
+      setProfile(null)
+      return null
+    }
+
+    return loadProfile(user.id)
+  }
+
   return (
-    <AuthContext.Provider value={{ user, session, profile, loading, signIn, signUp, signOut }}>
+    <AuthContext.Provider value={{ user, session, profile, loading, signIn, signUp, signOut, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   )

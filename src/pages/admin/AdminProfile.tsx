@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
@@ -8,12 +8,46 @@ import { Label } from '@/components/ui/label'
 
 const AdminProfile = () => {
   const { t } = useTranslation()
-  const { user, profile } = useAuth()
+  const { user, profile, refreshProfile } = useAuth()
+  const [fullName, setFullName] = useState('')
+  const [avatarUrl, setAvatarUrl] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [saving, setSaving] = useState(false)
+
+  useEffect(() => {
+    setFullName(profile?.full_name ?? '')
+    setAvatarUrl(profile?.avatar_url ?? '')
+  }, [profile?.avatar_url, profile?.full_name])
+
+  const handleProfileUpdate = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError('')
+    setSuccess('')
+
+    if (!user) return
+
+    setSaving(true)
+
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .update({
+        full_name: fullName.trim() || null,
+        avatar_url: avatarUrl.trim() || null,
+      })
+      .eq('id', user.id)
+
+    if (!profileError) {
+      await refreshProfile()
+      setSuccess(t('admin.profile_updated'))
+    } else {
+      setError(profileError.message)
+    }
+
+    setSaving(false)
+  }
 
   const handlePasswordUpdate = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -57,12 +91,15 @@ const AdminProfile = () => {
             {t('admin.account_info')}
           </h2>
 
-          <div className="space-y-4">
+          <form className="space-y-4" onSubmit={handleProfileUpdate}>
             <div>
-              <Label className="font-arabic mb-2 inline-block">{t('admin.full_name')}</Label>
-              <div className="h-11 rounded-xl border border-border bg-muted/40 px-4 flex items-center text-sm text-foreground">
-                {profile?.full_name ?? '—'}
-              </div>
+              <Label htmlFor="admin-fullName" className="font-arabic mb-2 inline-block">{t('admin.full_name')}</Label>
+              <Input
+                id="admin-fullName"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                className="font-arabic"
+              />
             </div>
 
             <div>
@@ -71,7 +108,25 @@ const AdminProfile = () => {
                 {user?.email ?? '—'}
               </div>
             </div>
-          </div>
+
+            <div>
+              <Label htmlFor="admin-avatarUrl" className="font-arabic mb-2 inline-block">{t('student_profile.avatar_url')}</Label>
+              <Input
+                id="admin-avatarUrl"
+                value={avatarUrl}
+                onChange={(e) => setAvatarUrl(e.target.value)}
+                dir="ltr"
+              />
+            </div>
+
+            {avatarUrl && (
+              <img src={avatarUrl} alt={profile?.full_name ?? 'Admin avatar'} className="h-20 w-20 rounded-2xl object-cover border border-border" />
+            )}
+
+            <Button type="submit" disabled={saving} className="font-arabic">
+              {saving ? '...' : t('student_profile.save_profile')}
+            </Button>
+          </form>
         </section>
 
         <section className="bg-card rounded-2xl border border-border p-6">

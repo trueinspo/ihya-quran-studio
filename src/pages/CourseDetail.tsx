@@ -61,7 +61,16 @@ const CourseDetail = () => {
 
       {/* Hero banner */}
       <div className="pt-16 bg-hero-gradient text-primary-foreground">
-        <div className="container mx-auto px-4 py-16">
+        <div className="container mx-auto px-4 py-16 relative overflow-hidden">
+          {course.image_url && (
+            <img
+              src={course.image_url}
+              alt={course.title_en || course.title_ar}
+              className="absolute inset-0 h-full w-full object-cover opacity-25"
+            />
+          )}
+          <div className="absolute inset-0 bg-secondary/70" />
+          <div className="relative">
           <motion.h1
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
@@ -84,6 +93,7 @@ const CourseDetail = () => {
             <span>{course.student_count} {t('courses_section.students')}</span>
             <span>{t(`course.access_${course.access_type}`)}</span>
             <span>{course.access_type === 'paid' ? `$${course.price_usd}` : t('course.price_free')}</span>
+          </div>
           </div>
         </div>
       </div>

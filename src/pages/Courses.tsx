@@ -76,7 +76,15 @@ const Courses = () => {
                   transition={{ duration: 0.5, delay: i * 0.08, ease: [0.16, 1, 0.3, 1] }}
                 >
                   <div className="bg-card rounded-2xl overflow-hidden shadow-sm border border-border/50 card-hover">
-                    <div className="h-44 bg-hero-gradient relative">
+                    <div className="h-44 bg-hero-gradient relative overflow-hidden">
+                      {course.image_url && (
+                        <img
+                          src={course.image_url}
+                          alt={course.title_en || course.title_ar}
+                          className="absolute inset-0 h-full w-full object-cover"
+                        />
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-secondary/80 via-secondary/20 to-transparent" />
                       <div className="absolute top-3 start-3 flex gap-2 flex-wrap">
                         <span className="bg-brand-gold text-secondary text-xs font-semibold px-3 py-1 rounded-full">
                           {t(`course.access_${course.access_type}`)}

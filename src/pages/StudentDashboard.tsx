@@ -22,6 +22,9 @@ const StudentDashboard = () => {
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-foreground font-arabic">{t('student_dashboard.title')}</h1>
           <p className="mt-2 text-muted-foreground font-arabic">{t('student_dashboard.subtitle')}</p>
+          <Link to="/profile" className="mt-4 inline-flex rounded-xl border border-border px-5 py-2.5 text-sm font-arabic text-foreground hover:bg-muted">
+            {t('student_dashboard.manage_profile')}
+          </Link>
         </div>
 
         {isLoading ? (
@@ -40,6 +43,11 @@ const StudentDashboard = () => {
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             {courses.map((item) => (
               <div key={item.enrollment.id} className="rounded-2xl border border-border bg-card p-6">
+                <img
+                  src={item.course.image_url || '/Ihya-logo-transparent.png'}
+                  alt={item.course.title_en || item.course.title_ar}
+                  className="mb-4 h-40 w-full rounded-2xl object-cover border border-border bg-muted/40"
+                />
                 <div className="mb-4 flex items-center justify-between gap-3">
                   <div>
                     <p className="font-arabic text-lg font-semibold text-foreground">{item.course.title_ar}</p>

@@ -11,6 +11,20 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 
+function getEmbeddedVideoSrc(url: string) {
+  const youtubeMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&?/]+)/)
+  if (youtubeMatch?.[1]) return `https://www.youtube.com/embed/${youtubeMatch[1]}`
+
+  const vimeoMatch = url.match(/vimeo\.com\/(\d+)/)
+  if (vimeoMatch?.[1]) return `https://player.vimeo.com/video/${vimeoMatch[1]}`
+
+  return null
+}
+
+function isDirectVideo(url: string) {
+  return /\.(mp4|webm|ogg)(\?.*)?$/i.test(url)
+}
+
 const LessonPage = () => {
   const { courseId = '', lessonId = '' } = useParams<{ courseId: string; lessonId: string }>();
   const { t } = useTranslation();
@@ -28,6 +42,9 @@ const LessonPage = () => {
   const nextLesson = currentIndex >= 0 ? lessons[currentIndex + 1] : null;
   const progressRow = progress.find((item) => item.lesson_id === lessonId);
   const hasAccess = !!enrollment || course?.access_type === 'public' || lesson?.is_preview;
+  const embeddedVideoSrc = lesson?.video_url ? getEmbeddedVideoSrc(lesson.video_url) : null
+  const directVideo = lesson?.video_url ? isDirectVideo(lesson.video_url) : false
+  const resourceLabel = isArabic ? lesson?.resource_label_ar : lesson?.resource_label_en
 
   useEffect(() => {
     if (!user || !lesson || !hasAccess || !enrollment) return;
@@ -65,10 +82,34 @@ const LessonPage = () => {
 
             <section className="rounded-2xl border border-border bg-card p-6">
               <h2 className="mb-3 text-lg font-semibold text-foreground font-arabic">{t('lesson.content')}</h2>
-              {lesson.video_url && (
+              {lesson.video_url && embeddedVideoSrc && (
+                <div className="mb-5 overflow-hidden rounded-2xl border border-border bg-muted/30">
+                  <iframe
+                    src={embeddedVideoSrc}
+                    title={isArabic ? lesson.title_ar : lesson.title_en}
+                    className="aspect-video w-full"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                </div>
+              )}
+              {lesson.video_url && !embeddedVideoSrc && directVideo && (
+                <video controls className="mb-5 aspect-video w-full rounded-2xl border border-border bg-black/80">
+                  <source src={lesson.video_url} />
+                </video>
+              )}
+              {lesson.video_url && !embeddedVideoSrc && !directVideo && (
                 <a href={lesson.video_url} target="_blank" rel="noreferrer" className="mb-4 inline-flex text-sm font-medium text-primary hover:text-primary/80">
                   {t('lesson.watch_video')}
                 </a>
+              )}
+              {lesson.resource_url && (
+                <div className="mb-4 rounded-2xl border border-border bg-muted/30 p-4">
+                  <p className="mb-2 text-sm font-semibold text-foreground font-arabic">{t('lesson.resource')}</p>
+                  <a href={lesson.resource_url} target="_blank" rel="noreferrer" className="inline-flex text-sm font-medium text-primary hover:text-primary/80">
+                    {resourceLabel || t('lesson.download_resource')}
+                  </a>
+                </div>
               )}
               <div className="whitespace-pre-wrap font-arabic text-foreground/80" style={{ lineHeight: 1.95 }}>
                 {isArabic ? lesson.content_ar : lesson.content_en}

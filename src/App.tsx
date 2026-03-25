@@ -19,6 +19,7 @@ import AdminProfile from "./pages/admin/AdminProfile";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import StudentDashboard from "./pages/StudentDashboard";
 import LessonPage from "./pages/LessonPage";
+import StudentProfile from "./pages/StudentProfile";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +38,7 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/dashboard" element={<ProtectedRoute><StudentDashboard /></ProtectedRoute>} />
+            <Route path="/profile" element={<ProtectedRoute><StudentProfile /></ProtectedRoute>} />
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<Dashboard />} />
               <Route path="courses" element={<AdminCourses />} />

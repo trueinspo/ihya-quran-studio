@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { BookOpen, Pencil, Plus, Trash2 } from 'lucide-react'
+import { ArrowDown, ArrowUp, BookOpen, Pencil, Plus, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
@@ -42,6 +42,7 @@ type CourseForm = {
   is_published: boolean
   available_from: string
   available_until: string
+  image_url: string
 }
 
 const emptyCourseForm: CourseForm = {
@@ -55,6 +56,7 @@ const emptyCourseForm: CourseForm = {
   is_published: true,
   available_from: '',
   available_until: '',
+  image_url: '',
 }
 
 type LessonForm = {
@@ -66,6 +68,9 @@ type LessonForm = {
   content_en: string
   duration: string
   video_url: string
+  resource_url: string
+  resource_label_ar: string
+  resource_label_en: string
   is_preview: boolean
 }
 
@@ -78,6 +83,9 @@ const emptyLessonForm: LessonForm = {
   content_en: '',
   duration: '',
   video_url: '',
+  resource_url: '',
+  resource_label_ar: '',
+  resource_label_en: '',
   is_preview: false,
 }
 
@@ -122,6 +130,9 @@ function LessonsSheet({ course, open, onClose }: { course: Course; open: boolean
       content_en: form.content_en,
       duration: form.duration || null,
       video_url: form.video_url || null,
+      resource_url: form.resource_url || null,
+      resource_label_ar: form.resource_label_ar,
+      resource_label_en: form.resource_label_en,
       is_preview: form.is_preview,
       order: editLesson?.order ?? lessons.length + 1,
     }
@@ -146,8 +157,24 @@ function LessonsSheet({ course, open, onClose }: { course: Course; open: boolean
       content_en: lesson.content_en,
       duration: lesson.duration ?? '',
       video_url: lesson.video_url ?? '',
+      resource_url: lesson.resource_url ?? '',
+      resource_label_ar: lesson.resource_label_ar,
+      resource_label_en: lesson.resource_label_en,
       is_preview: lesson.is_preview,
     })
+  }
+
+  const moveLesson = async (lessonId: string, direction: 'up' | 'down') => {
+    const currentIndex = lessons.findIndex((item) => item.id === lessonId)
+    const swapIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1
+
+    if (currentIndex < 0 || swapIndex < 0 || swapIndex >= lessons.length) return
+
+    const currentLesson = lessons[currentIndex]
+    const swapLesson = lessons[swapIndex]
+
+    await updateLesson.mutateAsync({ id: currentLesson.id, course_id: course.id, order: swapLesson.order })
+    await updateLesson.mutateAsync({ id: swapLesson.id, course_id: course.id, order: currentLesson.order })
   }
 
   return (
@@ -171,6 +198,11 @@ function LessonsSheet({ course, open, onClose }: { course: Course; open: boolean
                 <Field label={t('admin.duration')} value={form.duration} onChange={(value) => setForm((current) => ({ ...current, duration: value }))} />
                 <Field label={t('admin.video_url')} value={form.video_url} onChange={(value) => setForm((current) => ({ ...current, video_url: value }))} />
               </div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <Field label={t('admin.lesson_resource_url')} value={form.resource_url} onChange={(value) => setForm((current) => ({ ...current, resource_url: value }))} />
+                <Field label={t('admin.lesson_resource_label_ar')} value={form.resource_label_ar} onChange={(value) => setForm((current) => ({ ...current, resource_label_ar: value }))} />
+              </div>
+              <Field label={t('admin.lesson_resource_label_en')} value={form.resource_label_en} onChange={(value) => setForm((current) => ({ ...current, resource_label_en: value }))} />
               <div className="flex items-center gap-3">
                 <Switch id="lesson-preview" checked={form.is_preview} onCheckedChange={(checked) => setForm((current) => ({ ...current, is_preview: checked }))} />
                 <Label htmlFor="lesson-preview" className="font-arabic">{t('lesson.preview')}</Label>
@@ -198,10 +230,18 @@ function LessonsSheet({ course, open, onClose }: { course: Course; open: boolean
                         {lesson.summary_ar && <p className="text-sm text-muted-foreground font-arabic">{lesson.summary_ar}</p>}
                       </div>
                       <div className="flex gap-1">
+                        <Button size="icon" variant="ghost" disabled={index === 0 || updateLesson.isPending} onClick={() => moveLesson(lesson.id, 'up')}><ArrowUp size={14} /></Button>
+                        <Button size="icon" variant="ghost" disabled={index === lessons.length - 1 || updateLesson.isPending} onClick={() => moveLesson(lesson.id, 'down')}><ArrowDown size={14} /></Button>
                         <Button size="icon" variant="ghost" onClick={() => startEdit(lesson)}><Pencil size={14} /></Button>
                         <Button size="icon" variant="ghost" className="text-destructive hover:text-destructive" onClick={() => setDeleteTarget(lesson)}><Trash2 size={14} /></Button>
                       </div>
                     </div>
+                    {(lesson.duration || lesson.resource_url) && (
+                      <div className="mt-3 flex flex-wrap gap-2 text-xs text-muted-foreground font-arabic">
+                        {lesson.duration && <span>{lesson.duration}</span>}
+                        {lesson.resource_url && <span>{t('lesson.resource')}</span>}
+                      </div>
+                    )}
                   </div>
                 ))
               )}
@@ -269,6 +309,7 @@ const AdminCourses = () => {
       is_published: course.is_published,
       available_from: toDateTimeLocal(course.available_from),
       available_until: toDateTimeLocal(course.available_until),
+      image_url: course.image_url ?? '',
     })
     setSheetOpen(true)
   }
@@ -289,7 +330,7 @@ const AdminCourses = () => {
       is_published: form.is_published,
       available_from: toIsoDate(form.available_from),
       available_until: toIsoDate(form.available_until),
-      image_url: null,
+      image_url: form.image_url || null,
       lesson_count: editingCourse?.lesson_count ?? 0,
       student_count: editingCourse?.student_count ?? 0,
     }
@@ -335,11 +376,20 @@ const AdminCourses = () => {
               {courses.map((course) => (
                 <tr key={course.id} className="border-b border-border last:border-0 hover:bg-muted/20">
                   <td className="px-5 py-4">
-                    <p className="font-arabic font-medium text-foreground">{course.title_ar}</p>
-                    <p className="mt-1 text-xs text-muted-foreground">{course.title_en}</p>
-                    <div className="mt-2 flex gap-2">
-                      <Badge variant="outline" className="font-arabic">{accessLabels[course.access_type]}</Badge>
-                      {!course.is_published && <Badge variant="secondary" className="font-arabic">{t('admin.unpublished')}</Badge>}
+                    <div className="flex items-start gap-3">
+                      <img
+                        src={course.image_url || '/Ihya-logo-transparent.png'}
+                        alt={course.title_en || course.title_ar}
+                        className="h-14 w-14 rounded-xl object-cover border border-border bg-muted/40"
+                      />
+                      <div>
+                        <p className="font-arabic font-medium text-foreground">{course.title_ar}</p>
+                        <p className="mt-1 text-xs text-muted-foreground">{course.title_en}</p>
+                        <div className="mt-2 flex gap-2">
+                          <Badge variant="outline" className="font-arabic">{accessLabels[course.access_type]}</Badge>
+                          {!course.is_published && <Badge variant="secondary" className="font-arabic">{t('admin.unpublished')}</Badge>}
+                        </div>
+                      </div>
                     </div>
                   </td>
                   <td className="px-4 py-4"><Badge variant="outline" className="font-arabic">{t(`courses_page.filter_${course.category}`)}</Badge></td>
@@ -376,6 +426,11 @@ const AdminCourses = () => {
             <Field label={t('admin.title_en')} value={form.title_en} onChange={(value) => setForm((current) => ({ ...current, title_en: value }))} />
             <Field label={t('admin.desc_ar')} value={form.description_ar} onChange={(value) => setForm((current) => ({ ...current, description_ar: value }))} textarea />
             <Field label={t('admin.desc_en')} value={form.description_en} onChange={(value) => setForm((current) => ({ ...current, description_en: value }))} textarea />
+            <Field label={t('admin.course_image_url')} value={form.image_url} onChange={(value) => setForm((current) => ({ ...current, image_url: value }))} />
+
+            {form.image_url && (
+              <img src={form.image_url} alt={form.title_en || form.title_ar || 'Course cover'} className="h-40 w-full rounded-2xl object-cover border border-border" />
+            )}
 
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-1.5">
