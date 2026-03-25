@@ -6,7 +6,7 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { useCourses } from '@/lib/queries/courses';
 import { useLanguage } from '@/hooks/useLanguage';
-import { CourseCategory } from '@/lib/supabase';
+import { Course, CourseCategory } from '@/lib/supabase';
 
 const categories = ['all', 'tajweed', 'qiraat', 'adab'] as const;
 
@@ -17,13 +17,6 @@ const Courses = () => {
 
   const category = filter === 'all' ? undefined : (filter as CourseCategory);
   const { data: courses = [], isLoading } = useCourses(category);
-
-  const filterLabels: Record<string, string> = {
-    all: t('courses_page.filter_all'),
-    tajweed: t('courses_page.filter_tajweed'),
-    qiraat: t('courses_page.filter_qiraat'),
-    adab: t('courses_page.filter_adab'),
-  };
 
   return (
     <div className="min-h-screen">
@@ -42,7 +35,6 @@ const Courses = () => {
             <p className="text-muted-foreground font-arabic">{t('courses_page.subtitle')}</p>
           </motion.div>
 
-          {/* Filter */}
           <div className="flex justify-center gap-2 mb-10 flex-wrap">
             {categories.map((cat) => (
               <button
@@ -54,12 +46,11 @@ const Courses = () => {
                     : 'bg-card text-foreground/70 border border-border hover:bg-muted'
                 }`}
               >
-                {filterLabels[cat]}
+                {t(`courses_page.filter_${cat}`)}
               </button>
             ))}
           </div>
 
-          {/* Grid */}
           {isLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[1, 2, 3].map((i) => (
@@ -77,7 +68,7 @@ const Courses = () => {
             <p className="text-center text-muted-foreground font-arabic py-20">{t('courses_page.no_courses')}</p>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {courses.map((course, i) => (
+              {(courses as Course[]).map((course, i) => (
                 <motion.div
                   key={course.id}
                   initial={{ opacity: 0, y: 20, filter: 'blur(4px)' }}
@@ -86,13 +77,14 @@ const Courses = () => {
                 >
                   <div className="bg-card rounded-2xl overflow-hidden shadow-sm border border-border/50 card-hover">
                     <div className="h-44 bg-hero-gradient relative">
-                      {course.is_free && (
-                        <div className="absolute top-3 start-3">
-                          <span className="bg-brand-gold text-secondary text-xs font-semibold px-3 py-1 rounded-full">
-                            {t('courses_section.free')}
-                          </span>
-                        </div>
-                      )}
+                      <div className="absolute top-3 start-3 flex gap-2 flex-wrap">
+                        <span className="bg-brand-gold text-secondary text-xs font-semibold px-3 py-1 rounded-full">
+                          {t(`course.access_${course.access_type}`)}
+                        </span>
+                        <span className="bg-card/90 text-secondary text-xs font-semibold px-3 py-1 rounded-full">
+                          {course.access_type === 'paid' ? `$${course.price_usd}` : t('course.price_free')}
+                        </span>
+                      </div>
                     </div>
                     <div className="p-5">
                       <h3 className="text-lg font-bold text-foreground mb-2 font-arabic leading-relaxed">

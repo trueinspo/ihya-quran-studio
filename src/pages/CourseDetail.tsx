@@ -8,6 +8,7 @@ import Footer from '@/components/layout/Footer';
 import { useCourse } from '@/lib/queries/courses';
 import { useLessons } from '@/lib/queries/lessons';
 import { useEnrollment, useEnroll } from '@/lib/queries/enrollments';
+import { useCourseProgress } from '@/lib/queries/progress';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -21,6 +22,7 @@ const CourseDetail = () => {
   const { data: course, isLoading: courseLoading } = useCourse(id ?? '');
   const { data: lessons = [], isLoading: lessonsLoading } = useLessons(id ?? '');
   const { data: enrollment } = useEnrollment(id ?? '');
+  const { data: progress = [] } = useCourseProgress(id ?? '');
   const enroll = useEnroll(id ?? '');
 
   const tabs = [
@@ -28,6 +30,9 @@ const CourseDetail = () => {
     { key: 'content' as const, label: t('course_detail.content') },
     { key: 'enroll' as const, label: t('course_detail.enroll') },
   ];
+
+  const completedLessonIds = new Set(progress.filter((item) => item.completed_at).map((item) => item.lesson_id));
+  const hasFullAccess = !!enrollment || course?.access_type === 'public';
 
   if (courseLoading) {
     return (
@@ -74,9 +79,11 @@ const CourseDetail = () => {
           >
             {isArabic ? course.description_ar : course.description_en}
           </motion.p>
-          <div className="flex gap-6 mt-4 text-sm text-primary-foreground/60">
+          <div className="flex gap-6 mt-4 text-sm text-primary-foreground/60 flex-wrap">
             <span>{course.lesson_count} {t('course_detail.lessons_count')}</span>
             <span>{course.student_count} {t('courses_section.students')}</span>
+            <span>{t(`course.access_${course.access_type}`)}</span>
+            <span>{course.access_type === 'paid' ? `$${course.price_usd}` : t('course.price_free')}</span>
           </div>
         </div>
       </div>
@@ -121,28 +128,42 @@ const CourseDetail = () => {
                 <div key={i} className="h-16 bg-muted rounded-xl animate-pulse" />
               ))
             ) : (
-              lessons.map((lesson, i) => (
-                <div
-                  key={lesson.id}
-                  className="flex items-center justify-between p-4 bg-card rounded-xl border border-border/50"
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-sm font-semibold text-primary">
-                      {i + 1}
-                    </span>
-                    <span className="font-arabic text-foreground">
-                      {isArabic ? lesson.title_ar : lesson.title_en}
-                    </span>
+              lessons.map((lesson, i) => {
+                const canOpen = hasFullAccess || lesson.is_preview;
+                const isDone = completedLessonIds.has(lesson.id);
+
+                return (
+                  <div
+                    key={lesson.id}
+                    className="flex items-center justify-between p-4 bg-card rounded-xl border border-border/50"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-sm font-semibold text-primary">
+                        {i + 1}
+                      </span>
+                      <div>
+                        <span className="font-arabic text-foreground block">
+                          {isArabic ? lesson.title_ar : lesson.title_en}
+                        </span>
+                        <div className="text-xs text-muted-foreground flex gap-2 mt-1 font-arabic">
+                          {lesson.is_preview && <span>{t('lesson.preview')}</span>}
+                          {isDone && <span>{t('lesson.completed')}</span>}
+                        </div>
+                      </div>
+                    </div>
+                    {canOpen ? (
+                      <Link to={`/courses/${course.id}/lessons/${lesson.id}`} className="text-primary hover:text-primary/80 transition-colors inline-flex items-center gap-2 text-sm font-semibold">
+                        <PlayCircle className="w-4 h-4" />
+                        {t('lesson.open')}
+                      </Link>
+                    ) : (
+                      <Lock className="w-4 h-4 text-muted-foreground" />
+                    )}
                   </div>
-                  {enrollment ? (
-                    <PlayCircle className="w-4 h-4 text-primary" />
-                  ) : (
-                    <Lock className="w-4 h-4 text-muted-foreground" />
-                  )}
-                </div>
-              ))
+                );
+              })
             )}
-            {!enrollment && (
+            {!hasFullAccess && (
               <p className="text-sm text-muted-foreground text-center mt-4 font-arabic">
                 {t('course_detail.locked')}
               </p>
@@ -160,14 +181,33 @@ const CourseDetail = () => {
               <>
                 <CheckCircle className="w-16 h-16 text-primary mx-auto mb-4" />
                 <h3 className="text-xl font-bold text-foreground font-arabic">
-                  {isArabic ? 'أنت مسجّل في هذه الدورة' : 'You are enrolled in this course'}
+                  {t('course.enrolled_message')}
                 </h3>
+                <Link to="/dashboard" className="inline-flex mt-4 px-8 py-3.5 rounded-xl bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-all duration-200 active:scale-[0.97]">
+                  {t('student_dashboard.open_dashboard')}
+                </Link>
+              </>
+            ) : course.access_type === 'paid' ? (
+              <>
+                <PlayCircle className="w-16 h-16 text-primary mx-auto mb-4" />
+                <h3 className="text-xl font-bold text-foreground mb-2 font-arabic">
+                  {t('course.payment_required')}
+                </h3>
+                <p className="font-arabic text-muted-foreground">{t('course.payment_required_hint')}</p>
+              </>
+            ) : course.access_type === 'private' || course.access_type === 'assigned' ? (
+              <>
+                <Lock className="w-16 h-16 text-primary mx-auto mb-4" />
+                <h3 className="text-xl font-bold text-foreground mb-2 font-arabic">
+                  {course.access_type === 'private' ? t('course.private_only') : t('course.assigned_only')}
+                </h3>
+                <p className="font-arabic text-muted-foreground">{t('course.contact_admin')}</p>
               </>
             ) : (
               <>
                 <PlayCircle className="w-16 h-16 text-primary mx-auto mb-4" />
                 <h3 className="text-xl font-bold text-foreground mb-2 font-arabic">
-                  {t('course_detail.enroll_free')}
+                  {course.access_type === 'public' ? t('course.enroll_to_track') : t('course_detail.enroll_free')}
                 </h3>
                 {!user ? (
                   <Link

@@ -29,11 +29,33 @@ export const useEnroll = (courseId: string) => {
       if (!user) throw new Error('Not authenticated')
       const { error } = await supabase
         .from('enrollments')
-        .insert({ user_id: user.id, course_id: courseId })
+        .insert({ user_id: user.id, course_id: courseId, status: 'active' })
       if (error) throw error
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['enrollment', user?.id, courseId] })
+      queryClient.invalidateQueries({ queryKey: ['my-courses', user?.id] })
+    },
+  })
+}
+
+export const useUnenroll = (courseId: string) => {
+  const { user } = useAuth()
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async () => {
+      if (!user) throw new Error('Not authenticated')
+      const { error } = await supabase
+        .from('enrollments')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('course_id', courseId)
+      if (error) throw error
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['enrollment', user?.id, courseId] })
+      queryClient.invalidateQueries({ queryKey: ['my-courses', user?.id] })
     },
   })
 }

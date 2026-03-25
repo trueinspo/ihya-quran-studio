@@ -22,6 +22,9 @@ const Navbar = () => {
     navigate('/', { replace: true });
   };
 
+  const dashboardPath = profile?.role === 'admin' ? '/admin' : '/dashboard';
+  const dashboardLabel = profile?.role === 'admin' ? t('admin.panel') : t('nav.dashboard');
+
   const links = [
     { to: '/', label: t('nav.home') },
     { to: '/courses', label: t('nav.courses') },
@@ -101,16 +104,14 @@ const Navbar = () => {
                         <span className="text-xs text-primary font-semibold font-arabic">مدير النظام</span>
                       )}
                     </div>
-                    {profile?.role === 'admin' && (
-                      <Link
-                        to="/admin"
-                        onClick={() => setUserMenuOpen(false)}
-                        className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-foreground/70 hover:bg-muted transition-colors"
-                      >
-                        <LayoutDashboard size={14} />
-                        {t('admin.panel')}
-                      </Link>
-                    )}
+                    <Link
+                      to={dashboardPath}
+                      onClick={() => setUserMenuOpen(false)}
+                      className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-foreground/70 hover:bg-muted transition-colors"
+                    >
+                      <LayoutDashboard size={14} />
+                      {dashboardLabel}
+                    </Link>
                     <button
                       onClick={handleSignOut}
                       className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-foreground/70 hover:bg-muted transition-colors"
@@ -183,16 +184,14 @@ const Navbar = () => {
                       <p className="text-xs text-muted-foreground truncate">{user.email}</p>
                     </div>
                   </div>
-                  {profile?.role === 'admin' && (
-                    <Link
-                      to="/admin"
-                      onClick={() => setMobileOpen(false)}
-                      className="flex items-center gap-2 text-sm font-medium py-2 px-3 rounded-lg text-foreground/70 hover:bg-muted transition-colors"
-                    >
-                      <LayoutDashboard size={14} />
-                      {t('admin.panel')}
-                    </Link>
-                  )}
+                  <Link
+                    to={dashboardPath}
+                    onClick={() => setMobileOpen(false)}
+                    className="flex items-center gap-2 text-sm font-medium py-2 px-3 rounded-lg text-foreground/70 hover:bg-muted transition-colors"
+                  >
+                    <LayoutDashboard size={14} />
+                    {dashboardLabel}
+                  </Link>
                   <button
                     onClick={handleSignOut}
                     className="flex items-center gap-2 text-sm font-medium py-2 px-3 rounded-lg text-foreground/70 hover:bg-muted transition-colors"

@@ -14,11 +14,29 @@ const fetchLessons = async (courseId: string) => {
   return data as Lesson[]
 }
 
+const fetchLesson = async (courseId: string, lessonId: string) => {
+  const { data, error } = await supabase
+    .from('lessons')
+    .select('*')
+    .eq('course_id', courseId)
+    .eq('id', lessonId)
+    .single()
+  if (error) throw error
+  return data as Lesson
+}
+
 export const useLessons = (courseId: string) =>
   useQuery({
     queryKey: ['lessons', courseId],
     queryFn: () => fetchLessons(courseId),
     enabled: !!courseId,
+  })
+
+export const useLesson = (courseId: string, lessonId: string) =>
+  useQuery({
+    queryKey: ['lesson', courseId, lessonId],
+    queryFn: () => fetchLesson(courseId, lessonId),
+    enabled: !!courseId && !!lessonId,
   })
 
 export const useCreateLesson = () => {

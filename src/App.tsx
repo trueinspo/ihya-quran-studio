@@ -16,6 +16,9 @@ import Dashboard from "./pages/admin/Dashboard";
 import AdminCourses from "./pages/admin/AdminCourses";
 import AdminStudents from "./pages/admin/AdminStudents";
 import AdminProfile from "./pages/admin/AdminProfile";
+import { ProtectedRoute } from "./components/ProtectedRoute";
+import StudentDashboard from "./pages/StudentDashboard";
+import LessonPage from "./pages/LessonPage";
 
 const queryClient = new QueryClient();
 
@@ -30,8 +33,10 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/courses" element={<Courses />} />
             <Route path="/courses/:id" element={<CourseDetail />} />
+            <Route path="/courses/:courseId/lessons/:lessonId" element={<LessonPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/dashboard" element={<ProtectedRoute><StudentDashboard /></ProtectedRoute>} />
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<Dashboard />} />
               <Route path="courses" element={<AdminCourses />} />
