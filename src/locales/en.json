@@ -11,7 +11,9 @@
   },
   "hero": {
     "label": "Ihya Project",
-    "title": "Revive Your Quran… Word by Word",
+    "title": "Ihya Project",
+    "title_line_1": "Ihya Project",
+    "title_line_2": "For Teaching the Noble Quran",
     "subtitle": "Specialized courses in Qira'at, Tajweed, and the etiquettes of Quran bearers",
     "cta_courses": "Browse Courses",
     "cta_sheikh": "Meet the Sheikh"
